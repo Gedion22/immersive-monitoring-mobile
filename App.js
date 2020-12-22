@@ -1,114 +1,90 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
 import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-} from 'react-native';
+import {UploadPhotos} from './UploadPhotos';
+import {PhotoGallery} from './PhotoGallery';
+import {View, Text, Image, Button, Platform, ScrollView} from 'react-native';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+export default class App extends React.Component {
+  state = {
+    screen: 'main',
+    url: '',
+  };
+  navigate(screen) {
+    this.setState({screen});
+  }
 
-const App: () => React$Node = () => {
-  return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
+  getScreen() {
+    switch (this.state.screen) {
+      default:
+      case 'main':
+        return (
+          <View
+            style={{
+              paddingTop: 40,
+              paddingBottom: 40,
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Button
+              title="Upload Photo"
+              onPress={() => this.navigate('upload')}
+            />
+            <Button
+              title="Photo gallery"
+              onPress={() => this.navigate('gallery')}
+            />
           </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
-  );
-};
+        );
+      case 'upload':
+        return (
+          <UploadPhotos
+            back={() => this.navigate('main')}
+            success={(url) => {
+              this.setState({url});
+              this.navigate('prisma');
+            }}
+          />
+        );
+      case 'prisma':
+        return (
+          <View
+            style={{
+              backgroundColor: '#000',
+              paddingTop: 40,
+              paddingBottom: 40,
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <View
+              style={{
+                padding: 20,
+                width: '100%',
+                alignItems: 'flex-start',
+                justifyContent: 'center',
+              }}>
+              <Button title="Back" onPress={() => this.navigate('main')} />
+            </View>
+            <Image
+              source={{uri: this.state.url}}
+              style={{width: 400, height: 400}}
+            />
+          </View>
+        );
+      case 'gallery':
+        return (
+          <PhotoGallery
+            back={() => this.navigate('main')}
+            select={(url) => {
+              this.setState({url});
+              this.navigate('prisma');
+            }}
+          />
+        );
+    }
+  }
 
-const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
-  },
-  engine: {
-    position: 'absolute',
-    right: 0,
-  },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
-  },
-});
-
-export default App;
+  render() {
+    return this.getScreen();
+  }
+}
